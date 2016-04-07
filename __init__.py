@@ -52,7 +52,10 @@ SCREEN_MARGINS = {
                     "DVI-1-0" : (0,0,32,0),
                     "HDMI-0" : (0,0,32,0),
                   }
-
+CHROMIUM_MARGINS = {
+                    "DVI-1-0" : (32,0,32,0),
+                    "HDMI-0" : (32,0,32,0),
+                }
 
 
 #Commands for sending to shell
@@ -117,12 +120,14 @@ def window_reposition(*args, **kwargs):
     #Determine which position our active window is in:
     p_xdotool = Popen(["xdotool",'getactivewindow'], stdout=PIPE)
     active_window, err = p_xdotool.communicate()
+    print(active_window)
     p_xwininfo = Popen(["xwininfo","-id", active_window], stdout=PIPE)
     window_text, err = p_xwininfo.communicate()
-    
+    print(window_text)
     
     #Extract useful information from current window:
     win_details = re_win_name.findall(window_text)
+    print(win_details)
     try:
         win_details = win_details[0]
     except IndexError:
@@ -157,7 +162,12 @@ def window_reposition(*args, **kwargs):
     
     
     #Now look at the arguments to see where we wish to position this window!
-    resident_monitor_margins = SCREEN_MARGINS.get(resident_monitor["name"], (0,0,0,0)) #Default to no margins if cannot find the screen
+    lower_win_title = window_current['title'].lower()
+    if "google chrome" in lower_win_title or "chromium" in lower_win_title:
+        #Apply a special correction:
+        resident_monitor_margins = CHROMIUM_MARGINS.get(resident_monitor["name"], (32,0,0,0)) #Default to no margins if cannot find the screen
+    else:
+        resident_monitor_margins = SCREEN_MARGINS.get(resident_monitor["name"], (0,0,0,0)) #Default to no margins if cannot find the screen
     print resident_monitor_margins
     
     #WIDTH + HEIGHT: Set default target width and height
