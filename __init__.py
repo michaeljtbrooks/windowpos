@@ -54,7 +54,7 @@ SCREEN_MARGINS = {
                   }
 CHROMIUM_MARGINS = {
                     "DVI-1-0" : (32,0,32,0),
-                    "HDMI-0" : (32,0,32,0),
+                    "HDMI-0" : (0,0,0,0),
                 }
 
 
@@ -160,14 +160,20 @@ def window_reposition(*args, **kwargs):
             break  
     print(window_current)
     
+    #Resolve args
+    try:
+        args = args[0]
+    except IndexError: #No args supplied
+        pass
+    
     
     #Now look at the arguments to see where we wish to position this window!
     lower_win_title = window_current['title'].lower()
+    resident_monitor_margins = SCREEN_MARGINS.get(str(resident_monitor["name"]), (0,0,0,0)) #Default to no margins if cannot find the screen
     if "google chrome" in lower_win_title or "chromium" in lower_win_title:
         #Apply a special correction:
-        resident_monitor_margins = CHROMIUM_MARGINS.get(resident_monitor["name"], (32,0,0,0)) #Default to no margins if cannot find the screen
-    else:
-        resident_monitor_margins = SCREEN_MARGINS.get(resident_monitor["name"], (0,0,0,0)) #Default to no margins if cannot find the screen
+        if (str("left") in args or str("right") in args) and not (str("top") in args or str("bottom") in args):
+            resident_monitor_margins = CHROMIUM_MARGINS.get(str(resident_monitor["name"]), (32,0,0,0)) #Default to no margins if cannot find the screen
     print resident_monitor_margins
     
     #WIDTH + HEIGHT: Set default target width and height
@@ -175,10 +181,6 @@ def window_reposition(*args, **kwargs):
     target_height = (resident_monitor["h"]/1 - resident_monitor_margins[0] - resident_monitor_margins[2])
     
     #If a horizontal keyword appears in the arguments, the target width is halved:
-    try:
-        args = args[0]
-    except IndexError: #No args supplied
-        pass
     if str("left") in args or str("right") in args:
         target_width = (resident_monitor["w"]/2 - resident_monitor_margins[1] - resident_monitor_margins[3])
     #If a vertical keyword appears in the arguments, the target height is
