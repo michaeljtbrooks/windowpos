@@ -143,7 +143,7 @@ def get_window_id_of_active_window():
     """
     p_xdotool = Popen(["xdotool", 'getactivewindow'], stdout=PIPE)
     active_window, err = p_xdotool.communicate()
-    print(active_window)
+    print("Active window: {}".format(active_window))
     if err:
         print("ERROR: {}".format(err))
     return active_window
@@ -622,7 +622,7 @@ def reposition_window(application_name=None, nth_instance_of_application=0, wind
     # Determine the window id we are interested in
     if application_name and not window_id:
         window_ids = get_window_ids_of_interest(application_name=application_name)
-        if application_name == ACTIVE_WINDOW:
+        if application_name == ACTIVE_WINDOW and not window_ids:
             print("ERROR: No active window.")
             return 1
         nth_instance_of_application = int(nth_instance_of_application or 0)
